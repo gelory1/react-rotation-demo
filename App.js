@@ -1,25 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
 import { createStore } from 'redux';
 import  {Provider}  from 'react-redux';
 //import CouponPage from './src/pages/coupons/index';
 import CouponCom from './couponCom'
 import styles from "./style";
 import { findDOMNode } from 'react-dom';
-
-
-function stateChange(text) {
-  return {
-    type: USED,
-    text
-  }
-}
-function stateChange2(text) {
-  return {
-    type: OVERDUE,
-    text
-  }
-}
 
 const USED = 'USED'
 const UNUSE = 'UNUSE'
@@ -77,26 +63,35 @@ export default class HelloWorldApp extends Component {
         {themeColor:'#55B5FF',buttonName:'立即使用'},
         {themeColor:'#55B5FF',buttonName:'立即使用'},
       ],
+      text:null,
+      path:'app.sale.coupon.query'
     }
   }
   componentWillMount(){
+
+    let BASE_URL = 'https://try.morningw.com/app/index.php?i=3&c=entry&m=ewei_shopv2&do=mobile&r='
+    route = BASE_URL + this.state.path
     let xml = new XMLHttpRequest()
-    xml.open('get','https://try.morningw.com/app/index.php?i=3&c=entry&m=ewei_shopv2&do=mobile&r=app.sale.coupon.query')
+    xml.open('post',route)
     xml.onreadystatechange=(res)=>{
       if( xml.readyState === 4 && xml.status === 200){
-        //alert(xml.responseText)
-        let res = JSON.parse(xml.responseText)
+        let res = JSON.parse(xml.responseText).count
+        this.setState({
+          text:res
+        })
+        // let res = JSON.parse(xml.responseText).list
         //store.dispatch({})
       }
     }
-    xml.send()
+    xml.send({money:20,openId:1})
   }
   render() {
     let dom = this.state.couponList.map((com,index)=>{return (
       <CouponCom themeColor={com.themeColor} buttonName={com.buttonName} key={index}></CouponCom>
     )})
     let unuse =  (store.getState().couponPage ==='UNUSE') ? (
-      <View>
+      <View >
+        <Text>{this.state.text}</Text>
         {dom}
       </View>
     ) : null;
@@ -116,7 +111,7 @@ export default class HelloWorldApp extends Component {
 
     return (
         <Provider store={store}>
-          <View style={{backgroundColor:'#F3F3F3'}}>
+          <ScrollView style={{backgroundColor:'#F3F3F3'}} showsVerticalScrollIndicator={true} >
             <View style={{position:'relative',display:'flex',alignItems:'center',
             justifyContent:'center',flexDirection:'row',padding:10,fontSize:18,color:'#000'}}>
               <Text style={{position:'absolute',left:10,top:10,fontSize:20,lineHeight:20}}>&lt;</Text>
@@ -130,12 +125,14 @@ export default class HelloWorldApp extends Component {
             </View>
             <View style={styles.demo}>
               <Text style={styles.themeColor}>赶紧去领券中心看看更多优惠券~</Text>
-              <Text>{this.state.couponPage}</Text>
             </View>
-            {unuse}
-            {overdue}
-            {used}
-          </View>
+            <View>
+              {unuse}
+              {overdue}
+              {used}
+            </View>
+            
+          </ScrollView>
         </Provider>
     );
   }
