@@ -71,34 +71,43 @@ export default class HelloWorldApp extends Component {
       usedColor:'#777',
       overdueColor:'#777',
       buttonName:'已过期',
+      couponList:[
+        {themeColor:'#FD5554',buttonName:'立即使用'},
+        {themeColor:'#FD5554',buttonName:'立即使用'},
+        {themeColor:'#55B5FF',buttonName:'立即使用'},
+        {themeColor:'#55B5FF',buttonName:'立即使用'},
+      ],
     }
   }
-  componentDidUpdate() {
-    
-    alert(this.state.couponPage)
-    
+  componentWillMount(){
+    let xml = new XMLHttpRequest()
+    xml.open('get','https://try.morningw.com/app/index.php?i=3&c=entry&m=ewei_shopv2&do=mobile&r=app.sale.coupon.query')
+    xml.onreadystatechange=(res)=>{
+      if( xml.readyState === 4 && xml.status === 200){
+        //alert(xml.responseText)
+        let res = JSON.parse(xml.responseText)
+        //store.dispatch({})
+      }
+    }
+    xml.send()
   }
   render() {
-
+    let dom = this.state.couponList.map((com,index)=>{return (
+      <CouponCom themeColor={com.themeColor} buttonName={com.buttonName} key={index}></CouponCom>
+    )})
     let unuse =  (store.getState().couponPage ==='UNUSE') ? (
       <View>
-        <CouponCom themeColor='#FD5554' buttonName="立即使用" />
-        <CouponCom themeColor='#FD5554' buttonName="立即使用"  />
-        <CouponCom themeColor='#55B5FF' buttonName="立即使用"  />
-        <CouponCom themeColor='#55B5FF' buttonName="立即使用"  />
+        {dom}
       </View>
     ) : null;
     let overdue = (store.getState().couponPage ==='OVERDUE') ? (
       <View>
         <CouponCom themeColor='#CCC' buttonName="已过期" />
         <CouponCom themeColor='#CCC' buttonName="已过期" />
-        <CouponCom themeColor='#CCC' buttonName="已过期" />
-        <CouponCom themeColor='#CCC' buttonName="已过期" />
       </View>
     ) : null;
     let used = (store.getState().couponPage ==='USED') ? (
       <View>
-        <CouponCom themeColor='#EEE' buttonName="已使用" />
         <CouponCom themeColor='#EEE' buttonName="已使用" />
         <CouponCom themeColor='#EEE' buttonName="已使用" />
         <CouponCom themeColor='#EEE' buttonName="已使用" />
@@ -133,32 +142,41 @@ export default class HelloWorldApp extends Component {
   getCouponsUnUse(){
 
     store.dispatch({type: 'UNUSE'})
-    // this.setState({
-    //   couponPage:'unuse'
-    // })
+      this.setState({
+        couponPage:'UNUSE',
+        unuseColor: '#FF8000',
+        usedColor:'#777',
+        overdueColor:'#777',
+      })
     //alert(this.state.couponPage)
   }
   getCouponsUsed(){
 
     store.dispatch({type: 'USED'})
-    // this.setState({
-    //   couponPage:'used'
-    // })
+     this.setState({
+      couponPage:'USED',
+      unuseColor: '#777',
+      usedColor:'#FF8000',
+      overdueColor:'#777',
+     })
      //console.log(this.state.couponPage)
   }
   getCouponsOverdue(){
 
     store.dispatch({type: 'OVERDUE'})
     
-    // this.setState({
-    //   couponPage:'overdue'
-    // })
+     this.setState({
+      couponPage:'OVERDUE',
+      unuseColor: '#777',
+      usedColor:'#777',
+      overdueColor:'#FF8000',
+     })
      //alert(this.state.couponPage)
   }
   
 }
-store.subscribe(()=>{
-  //render(store.getState())
-  alert(store.getState().couponPage)
+// store.subscribe(()=>{
+//   //render(store.getState())
+//   alert(store.getState().couponPage)
   
-})
+// })
